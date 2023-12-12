@@ -27,7 +27,7 @@ def main():
 
     loader = data.DataLoader(dataset, batch_size=1000)
     net = FEClassifierTrainer.load_from_checkpoint(
-        r"AI-kaggle\h128-d0.5-s0.1-w1.2-1\epoch=49-step=19500.ckpt"
+        r"checkpoints\h16-d0.0-s0.1-w1.0-1.2-attn\epoch=49-step=19500.ckpt"
     )
     net = net.cuda().eval()
     # all_prob = []

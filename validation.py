@@ -27,14 +27,14 @@ def main():
 
     loader = data.DataLoader(dataset, batch_size=1000)
     net = FEClassifierTrainer.load_from_checkpoint(
-        r"AI-kaggle\7qvkxa24\checkpoints\epoch=49-step=19500-f1_score=0.88010.ckpt"
+        r"checkpoints/h16-d0.0-s0.0-w1.0-1.0-attn-rms/epoch=38-f1_score=0.87801.ckpt"
     )
-    net = net.cuda().eval()
+    net = net.eval()
     all_prob = []
     for _, (inputs, id) in enumerate(tqdm(loader)):
         with torch.autocast("cuda", torch.bfloat16):
-            outputs = net(inputs.cuda())
-        pred_prob = F.softmax(outputs, dim=1)
+            outputs = net(inputs.to(net.device))
+        pred_prob = F.softmax(outputs, dim=1).cpu()
         for j in range(len(id)):
             prob = pred_prob[j][1].item()
             all_prob.append(prob)
@@ -50,16 +50,17 @@ def main():
     false_positive = 0
     false_negative = 0
     threshold = median(all_prob)
+    threshold = 0.5
     for _, (inputs, id) in enumerate(tqdm(loader)):
         with torch.autocast("cuda", torch.bfloat16):
-            outputs = net(inputs.cuda())
-        pred_prob = F.softmax(outputs, dim=1)
+            outputs = net(inputs.to(net.device))
+        pred_prob = F.softmax(outputs, dim=1).cpu()
         predicted = pred_prob[:, 1] >= threshold
-        true_positive += (predicted & (id.cuda() == 1)).sum().item()
-        true_negative += (~predicted & (id.cuda() == 0)).sum().item()
-        false_positive += (predicted & (id.cuda() == 0)).sum().item()
-        false_negative += (~predicted & (id.cuda() == 1)).sum().item()
-        correct += (predicted == id.cuda()).sum().item()
+        true_positive += (predicted & (id == 1)).sum().item()
+        true_negative += (~predicted & (id == 0)).sum().item()
+        false_positive += (predicted & (id == 0)).sum().item()
+        false_negative += (~predicted & (id == 1)).sum().item()
+        correct += (predicted == id).sum().item()
         total += predicted.size(0)
     correct = true_positive + true_negative
     acc = correct / total

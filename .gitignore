@@ -1,3 +1,4 @@
+.DS_store
 *.7z
 wandb/
 AI-kaggle/

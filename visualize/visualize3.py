@@ -4,11 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 
-from dataset import Dataset
+from data.dataset import Dataset
 
 
-mu, sigma = torch.load("./standardize_factor.pth")
-mu, x_min, x_max = torch.load("./normalize_factor.pth")
+mu, sigma = torch.load("./data/standardize_factor.pth")
+mu, x_min, x_max = torch.load("./data/normalize_factor.pth")
 dataset = Dataset("cleaned-full")
 
 # dataset.standardize(mu, sigma)

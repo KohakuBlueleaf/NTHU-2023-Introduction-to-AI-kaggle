@@ -69,13 +69,14 @@ class Dataset(data.Dataset):
 
 if __name__ == "__main__":
     # Get the mean and standard deviation
-    dataset = Dataset("cleaned-full")
-    mu = torch.mean(dataset.datas, dim=0)
-    min = torch.min(dataset.datas, dim=0)
-    max = torch.max(dataset.datas, dim=0)
-    sigma = torch.sigma(dataset.datas, dim=0)
+    for i in range(5):
+        dataset = Dataset(f"cleaned-full-{i}")
+        mu = torch.mean(dataset.datas, dim=0)
+        min = torch.min(dataset.datas, dim=0)
+        max = torch.max(dataset.datas, dim=0)
+        sigma = torch.std(dataset.datas, dim=0)
 
-    print(mu, sigma)
+        print(mu, sigma)
 
-    torch.save([mu, min, max], "normalize_factor.pth")
-    torch.save([mu, sigma], "standardize_factor.pth")
+        torch.save([mu, min, max], f"./data/normalize_factor_{i}.pth")
+        torch.save([mu, sigma], f"./data/standardize_factor_{i}.pth")

@@ -1,5 +1,18 @@
 # info for best models
 
+### 0.87378
+
+* 15 seed ensemble (15seed with hidden dim 128 can stably achieve 0.873)
+* hidden dim 128
+* structure: Feature Expander (features=24)
+* seed = 3407~3421
+* standardized, balanced
+* CE loss weight [1.1, 1.0]
+* label smoothing = 0.1
+* 60epoch/bs 2048/ cosine annealing/eta_min=1e-2/lr=1
+* Prodigy optimizer
+* Dropout = 0.5
+
 ### 0.87251
 
 * Use balanced val

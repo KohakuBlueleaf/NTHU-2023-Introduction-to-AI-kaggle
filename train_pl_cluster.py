@@ -1,6 +1,3 @@
-import sys
-from multiprocessing import Pool
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -15,32 +12,33 @@ from prodigyopt import Prodigy
 from modules.trainer import FEClassifierTrainer
 from modules.utils import ProdigyLRMonitor
 from data.dataset import Dataset
-from metadatas import indices
+from metadatas import indices, indices_for_clusters
 
 torch.set_float32_matmul_precision("high")
 
 
-EPOCH = 60
+EPOCH = 20
 BATCH_SIZE = 2048
-KEEP_FEATURES = 24
-HIDDEN = 128
-DROPOUT = 0.5
+KEEP_FEATURES = 16
+HIDDEN = 64
+DROPOUT = 0.33
 SMOOTHING = 0.1
-CE_WEIGHT = [1.0, 1.1]
+CE_WEIGHT = [1.05, 1.0]
+CLUSTER = 4
 
 RMS_NORM = False
 USE_ATTN = False
 MAGNITUDE_PRESERVING = False
 
 
-def main(seed=0):
-    pl.seed_everything(seed)
-    mask = [i for i in range(35) if i in indices[:KEEP_FEATURES]]
-    train_dataset = Dataset("cleaned-train", mask)
+def main():
+    pl.seed_everything(0)
+    mask = [i for i in range(35) if i in indices_for_clusters[CLUSTER][:KEEP_FEATURES]]
+    train_dataset = Dataset(f"cleaned-train-{CLUSTER}", mask)
     train_dataset.balancing()
-    valid_dataset = Dataset("cleaned-val", mask)
+    valid_dataset = Dataset(f"cleaned-val-{CLUSTER}", mask)
 
-    mu, sigma = torch.load("./data/standardize_factor.pth")
+    mu, sigma = torch.load(f"./data/standardize_factor_{CLUSTER}.pth")
     train_dataset.standardize(mu, sigma)
     valid_dataset.standardize(mu, sigma)
 
@@ -72,9 +70,7 @@ def main(seed=0):
     )
     print(model)
 
-    name = (
-        f"EP{EPOCH}-B{BATCH_SIZE}-h{HIDDEN}-d{DROPOUT}-s{SMOOTHING}-w{CE_WEIGHT[0]}-{CE_WEIGHT[1]}-seed{seed}"
-    )
+    name = f"{CLUSTER}-h{HIDDEN}-d{DROPOUT}-s{SMOOTHING}-w{CE_WEIGHT[0]}-{CE_WEIGHT[1]}"
     if USE_ATTN:
         name += "-attn"
     if MAGNITUDE_PRESERVING:
@@ -82,7 +78,7 @@ def main(seed=0):
     if RMS_NORM:
         name += "-rms"
     save_path = f"./checkpoints/{name}"
-    
+
     logger = None
     logger = WandbLogger(
         name=name,
@@ -107,7 +103,11 @@ def main(seed=0):
                 save_top_k=2,
                 auto_insert_metric_name=False,
             ),
-            ModelCheckpoint(dirpath=save_path, every_n_epochs=1),
+            ModelCheckpoint(
+                dirpath=save_path,
+                filename="{epoch}",
+                every_n_epochs=1,
+            ),
         ],
         num_sanity_val_steps=-1,
     )
@@ -115,7 +115,7 @@ def main(seed=0):
 
 
 def wandb_sweep_wrapper():
-    global EPOCH, BATCH_SIZE, KEEP_FEATURES, HIDDEN, DROPOUT, SMOOTHING, CE_WEIGHT
+    global EPOCH, BATCH_SIZE, KEEP_FEATURES, HIDDEN, DROPOUT, SMOOTHING, CE_WEIGHT, CLUSTER
 
     import wandb
 
@@ -123,33 +123,21 @@ def wandb_sweep_wrapper():
     config = wandb.config
 
     # Apply config's param to global variables
-    EPOCH = 50
+    EPOCH = 20
     BATCH_SIZE = 2048
     KEEP_FEATURES = 24
-    HIDDEN = getattr(config, 'hidden', None) or HIDDEN
-    DROPOUT = getattr(config, 'dropout', None) or DROPOUT
-    SMOOTHING = getattr(config, 'smooth', None) or SMOOTHING
-    CE_WEIGHT = getattr(config, 'weight', None) or CE_WEIGHT
+    CLUSTER = config.cluster
 
-    main(getattr(config, 'seed',))
+    main()
 
 
 if __name__ == "__main__":
-    mp_pool = Pool(15)
-    for seed in range(15):
-        mp_pool.apply_async(main, args=(seed+3407,))
-    mp_pool.close()
-    mp_pool.join()
-    # main(seed)
+    main()
     # sweep_config = {
     #     "method": "grid",
-    #     "name": "first_sweep",
-    #     "metric": {
-    #         "goal": "minimize",
-    #         "name": "val/f1_score",
-    #     },
+    #     "name": "cluster_sweep",
     #     "parameters": {
-    #         "seed": {"values": list(range(5))},
+    #         "cluster": {"values": [0, 1, 2, 3, 4]},
     #     },
     # }
 

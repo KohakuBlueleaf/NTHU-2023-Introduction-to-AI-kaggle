@@ -17,7 +17,7 @@ dataset2 = Dataset("train")
 # y = np.array(dataset.label)
 # n_samples, n_features = x.shape
 
-datas =random.choices(list(zip(dataset2.all_data, dataset2.label)), k=10000)
+datas = random.choices(list(zip(dataset2.all_data, dataset2.label)), k=10000)
 x2 = np.array([data[0] for data in datas])
 y2 = np.array([data[1] for data in datas])
 n_samples2, n_features2 = x2.shape

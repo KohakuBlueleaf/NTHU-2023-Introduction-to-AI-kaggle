@@ -28,11 +28,7 @@ test_label = test_dataset.targets.numpy()
 
 
 rf = RandomForestClassifier(
-    n_estimators=110, 
-    max_depth=10, 
-    random_state=0, 
-    n_jobs=16, 
-    class_weight="balanced"
+    n_estimators=110, max_depth=10, random_state=0, n_jobs=16, class_weight="balanced"
 )
 rf.fit(train_data, train_label)
 y_pred = rf.predict(val_data)

@@ -28,8 +28,9 @@ def main():
     loader = data.DataLoader(dataset, batch_size=1000)
     nets = [
         FEClassifierTrainer.load_from_checkpoint(
-            f"checkpoints\\EP60-B2048-h128-d0.5-s0.1-w1.0-1.1-seed{i+3407}\\epoch=59-step=23400.ckpt"
-        ).cuda().eval() for i in range(15)
+            f"checkpoints\\EP75-B2048-h128-d0.5-s0.1-w1.1-1.0-dcoef0.8-seed{i+3407}\\last.ckpt"
+        ).cuda().eval()
+        for i in range(15)
     ]
     total1 = 0
     with open("./out/submission.csv", "w", newline="") as f:
@@ -41,7 +42,6 @@ def main():
                 with torch.autocast("cuda", torch.bfloat16):
                     outputs = net(inputs.cuda())
                 pred_prob += F.softmax(outputs, dim=1)
-            print(pred_prob[0])
             predicted = pred_prob.argmax(dim=1)
             total1 += torch.sum(predicted)
             for j in range(len(id)):

@@ -20,13 +20,15 @@ from metadatas import indices
 torch.set_float32_matmul_precision("high")
 
 
-EPOCH = 60
+EPOCH = 75
 BATCH_SIZE = 2048
 KEEP_FEATURES = 24
 HIDDEN = 128
 DROPOUT = 0.5
 SMOOTHING = 0.1
-CE_WEIGHT = [1.0, 1.1]
+CE_WEIGHT = [1.1, 1.0]
+D_COEF = 0.8
+
 
 RMS_NORM = False
 USE_ATTN = False
@@ -65,6 +67,7 @@ def main(seed=0):
         },
         lr=1.0,
         optimizer=Prodigy,
+        opt_configs={"d_coef": D_COEF},
         lr_scheduler=optim.lr_scheduler.CosineAnnealingLR,
         lr_sch_configs={"T_max": total_step, "eta_min": 1e-2},
         use_warm_up=False,
@@ -72,17 +75,18 @@ def main(seed=0):
     )
     print(model)
 
-    name = (
-        f"EP{EPOCH}-B{BATCH_SIZE}-h{HIDDEN}-d{DROPOUT}-s{SMOOTHING}-w{CE_WEIGHT[0]}-{CE_WEIGHT[1]}-seed{seed}"
-    )
+    name = f"EP{EPOCH}-B{BATCH_SIZE}-h{HIDDEN}-d{DROPOUT}-s{SMOOTHING}-w{CE_WEIGHT[0]}-{CE_WEIGHT[1]}"
     if USE_ATTN:
         name += "-attn"
     if MAGNITUDE_PRESERVING:
         name += "-mp"
     if RMS_NORM:
         name += "-rms"
+    if D_COEF != 1.0:
+        name += f"-dcoef{D_COEF}"
+    name += f'-seed{seed}'
     save_path = f"./checkpoints/{name}"
-    
+
     logger = None
     logger = WandbLogger(
         name=name,
@@ -107,7 +111,13 @@ def main(seed=0):
                 save_top_k=2,
                 auto_insert_metric_name=False,
             ),
-            ModelCheckpoint(dirpath=save_path, every_n_epochs=1),
+            ModelCheckpoint(
+                dirpath=save_path,
+                filename="epoch={epoch}-f1_score={val/f1_score:.5f}-acc={val/acc:.5f}",
+                save_last=True,
+                every_n_epochs=1,
+                auto_insert_metric_name=False,
+            ),
         ],
         num_sanity_val_steps=-1,
     )
@@ -126,21 +136,26 @@ def wandb_sweep_wrapper():
     EPOCH = 50
     BATCH_SIZE = 2048
     KEEP_FEATURES = 24
-    HIDDEN = getattr(config, 'hidden', None) or HIDDEN
-    DROPOUT = getattr(config, 'dropout', None) or DROPOUT
-    SMOOTHING = getattr(config, 'smooth', None) or SMOOTHING
-    CE_WEIGHT = getattr(config, 'weight', None) or CE_WEIGHT
+    HIDDEN = getattr(config, "hidden", None) or HIDDEN
+    DROPOUT = getattr(config, "dropout", None) or DROPOUT
+    SMOOTHING = getattr(config, "smooth", None) or SMOOTHING
+    CE_WEIGHT = getattr(config, "weight", None) or CE_WEIGHT
 
-    main(getattr(config, 'seed',))
+    main(
+        getattr(
+            config,
+            "seed",
+        )
+    )
 
 
 if __name__ == "__main__":
     mp_pool = Pool(15)
     for seed in range(15):
-        mp_pool.apply_async(main, args=(seed+3407,))
+        mp_pool.apply_async(main, args=(seed + 3407,))
     mp_pool.close()
     mp_pool.join()
-    # main(seed)
+    # main(0)
     # sweep_config = {
     #     "method": "grid",
     #     "name": "first_sweep",

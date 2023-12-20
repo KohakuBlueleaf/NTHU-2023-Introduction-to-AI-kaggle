@@ -1,7 +1,4 @@
 from typing import *
-from itertools import chain
-from typing import Any
-from pytorch_lightning.utilities.types import STEP_OUTPUT
 
 import numpy as np
 
@@ -79,10 +76,6 @@ class FEClassifierTrainer(FEClassifier, BaseTrainer):
         num_classes=2,
         hidden=512,
         dropout_rate=0.0,
-        weighted_residual=False,
-        rms_norm=False,
-        use_attn=False,
-        maginitude_preserving=False,
         loss=nn.CrossEntropyLoss,
         loss_configs: dict[str, Any] = {"weight": None, "label_smoothing": 0.0},
         name="",
@@ -100,10 +93,6 @@ class FEClassifierTrainer(FEClassifier, BaseTrainer):
             num_classes=num_classes,
             hidden=hidden,
             dropout_rate=dropout_rate,
-            rms_norm=rms_norm,
-            use_attn=use_attn,
-            maginitude_preserving=maginitude_preserving,
-            weighted_residual=weighted_residual,
             loss=loss,
             loss_configs=loss_configs,
             name=name,

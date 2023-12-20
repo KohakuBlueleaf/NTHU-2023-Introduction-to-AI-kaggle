@@ -38,6 +38,8 @@ print("f1:", f1_score(val_label, y_pred))
 importances = rf.feature_importances_
 indices = np.argsort(importances)[::-1]
 importances = np.around(importances, decimals=4)
+
+# Print importances, which also be used in nn
 print(importances)
 print(list(indices))
 print()

@@ -1,5 +1,20 @@
 # info for best models
 
+### 0.87421
+
+* EP100-B2048-h128-d0.5-s0.1-w1.1-1.0-dcoef0.8-seed3407~3422
+* 15 seed ensemble (15seed with hidden dim 128 can stably achieve 0.873)
+* hidden dim 128
+* structure: Feature Expander (features=24)
+* seed = 3407~3422, ignore 3410
+* standardized, balanced
+* CE loss weight [1.1, 1.0]
+* label smoothing = 0.1
+* 100epoch/bs 2048/ cosine annealing/eta_min=1e-2/lr=1
+* Prodigy optimizer, dcoef=0.8
+* Dropout = 0.5
+* ignore seed=3410 which have gradient explosion.
+
 ### 0.87378
 
 * 15 seed ensemble (15seed with hidden dim 128 can stably achieve 0.873)

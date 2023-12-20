@@ -1,0 +1,6 @@
+torch
+pytorch-lightning
+wandb
+prodigyopt
+warmup_scheduler
+scikit-learn

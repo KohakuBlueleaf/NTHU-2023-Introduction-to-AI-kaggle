@@ -42,13 +42,18 @@ def main(seed=0):
     valid_dataset.standardize(mu, sigma)
 
     loader = data.DataLoader(
-        train_dataset, batch_size=BATCH_SIZE, shuffle=True, drop_last=True,
-        num_workers = 4,
-        persistent_workers = 4,
+        train_dataset,
+        batch_size=BATCH_SIZE,
+        shuffle=True,
+        drop_last=True,
+        num_workers=4,
+        persistent_workers=4,
     )
-    val_loader = data.DataLoader(valid_dataset, batch_size=2000,
-        num_workers = 2,
-        persistent_workers = 2,
+    val_loader = data.DataLoader(
+        valid_dataset,
+        batch_size=2000,
+        num_workers=2,
+        persistent_workers=2,
     )
     total_step = len(loader) * EPOCH
 
@@ -75,7 +80,7 @@ def main(seed=0):
     name = f"EP{EPOCH}-B{BATCH_SIZE}-h{HIDDEN}-d{DROPOUT}-s{SMOOTHING}-w{CE_WEIGHT[0]}-{CE_WEIGHT[1]}"
     if D_COEF != 1.0:
         name += f"-dcoef{D_COEF}"
-    name += f'-seed{seed}'
+    name += f"-seed{seed}"
     save_path = f"./checkpoints/{name}"
 
     logger = None

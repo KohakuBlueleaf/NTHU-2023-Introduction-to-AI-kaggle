@@ -15,7 +15,7 @@ train_data1 = data1[:5000]
 val_data0 = data0[5000:]
 val_data1 = data1[5000:]
 
-with open('data/cleaned-train.csv', 'w', newline='') as f:
+with open("data/cleaned-train.csv", "w", newline="") as f:
     writer = csv.writer(f)
     writer.writerow(["label", *range(35)])
     for data in train_data0:
@@ -23,7 +23,7 @@ with open('data/cleaned-train.csv', 'w', newline='') as f:
     for data in train_data1:
         writer.writerow([1, *data])
 
-with open('data/cleaned-val.csv', 'w', newline='') as f:
+with open("data/cleaned-val.csv", "w", newline="") as f:
     writer = csv.writer(f)
     writer.writerow(["label", *range(35)])
     for data in val_data0:

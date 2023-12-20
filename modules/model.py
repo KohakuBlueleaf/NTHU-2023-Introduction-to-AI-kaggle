@@ -4,6 +4,8 @@ import torch.nn.functional as F
 
 
 act = nn.Mish
+
+
 class FeatureExpander(nn.Module):
     def __init__(
         self,
@@ -35,12 +37,7 @@ class FeatureExpander(nn.Module):
 
 class FEClassifier(nn.Module):
     def __init__(
-        self,
-        in_features=35,
-        num_classes=2,
-        hidden=128,
-        dropout_rate=0.0,
-        **kwargs
+        self, in_features=35, num_classes=2, hidden=128, dropout_rate=0.0, **kwargs
     ):
         super(FEClassifier, self).__init__(**kwargs)
 

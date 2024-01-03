@@ -1,5 +1,6 @@
 .DS_store
 *.7z
+*.csv
 wandb/
 AI-kaggle/
 checkpoints/

@@ -78,7 +78,7 @@ def main(seed=0):
     print(model)
 
     name = f"EP{EPOCH}-B{BATCH_SIZE}-h{HIDDEN}-d{DROPOUT}-s{SMOOTHING}-w{CE_WEIGHT[0]}-{CE_WEIGHT[1]}"
-    if D_COEF != 1.0:
+    if D_COEF != 1:
         name += f"-dcoef{D_COEF}"
     name += f"-seed{seed}"
     save_path = f"./checkpoints/{name}"

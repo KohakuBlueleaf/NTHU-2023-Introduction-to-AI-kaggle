@@ -197,7 +197,6 @@ class FEClassifierTrainer(FEClassifier, BaseTrainer):
         precision = true_pos / max(true_pos + false_pos, 1)
         recall = true_pos / max(true_pos + false_neg, 1)
         f1_score = 2 * precision * recall / max(precision + recall, 1e-8)
-        f1_score = f1_score
 
         if self._trainer is not None:
             self.log("val/acc", float(acc), on_step=False, logger=True)
